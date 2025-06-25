@@ -1297,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${deadlineDate.toLocaleDateString('vi-VN')}</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>
-                    <button class="btn btn-info btn-sm" onclick="showDraftDetail(${draft.id})">
+                    <button class="btn btn-info btn-sm" onclick="window.showDraftDetailLocal(${draft.id})">
                         <i class="fas fa-eye"></i> Xem chi tiết
                     </button>
                 </td>
@@ -1649,6 +1649,130 @@ document.addEventListener('DOMContentLoaded', function () {
         navigateToModule('dashboardHome');
     }
 });
+
+// Global function to access local showDraftDetail from onclick
+window.showDraftDetailLocal = function(draftId) {
+    // Navigate to draft report module first if not already there
+    const draftModule = document.getElementById('draftReportModule');
+    if (!draftModule || draftModule.style.display === 'none') {
+        window.navigateToModule('draftReport');
+    }
+    
+    // Wait a bit for module to load, then call the detail function
+    setTimeout(() => {
+        const draft = appData.draftReports.find(d => d.id === draftId);
+        if (!draft) {
+            showCustomAlert("Không tìm thấy dự thảo tờ trình.");
+            return;
+        }
+        
+        // Populate draft details
+        document.getElementById('draftDetailTitle').textContent = draft.title;
+        document.getElementById('draftDetailInfo').textContent = 
+            `Tạo bởi: ${draft.creator} | Ngày tạo: ${new Date(draft.createdDate).toLocaleDateString('vi-VN')} | Hạn góp ý: ${new Date(draft.commentDeadline).toLocaleDateString('vi-VN')}`;
+        document.getElementById('draftContent').textContent = draft.content;
+        
+        // Populate attachments
+        const attachmentsList = document.getElementById('draftAttachments');
+        attachmentsList.innerHTML = '';
+        if (draft.attachments && draft.attachments.length > 0) {
+            draft.attachments.forEach(file => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" onclick="event.preventDefault(); handleAttachmentClick('draft', ${draft.id}, '${file.name.replace(/'/g, "\\'")}')">${file.name} <i class="fas fa-download"></i></a> (${(file.size / 1024).toFixed(1)} KB)`;
+                attachmentsList.appendChild(li);
+            });
+        } else {
+            attachmentsList.innerHTML = '<li>Không có file đính kèm.</li>';
+        }
+        
+        // Check if current user has already responded
+        const userResponse = draft.responses.find(r => r.userId === appData.currentUser.username);
+        const draftActionSection = document.getElementById('draftActionSection');
+        const userResponseStatus = document.getElementById('userResponseStatus');
+        const closeDraftSection = document.getElementById('closeDraftSection');
+        const deadlineDate = new Date(draft.commentDeadline);
+        const currentDate = new Date();
+        const isExpired = currentDate > deadlineDate;
+        const isCreator = draft.creator === appData.currentUser.username;
+        
+        // Show close draft section only for creator when draft is still open
+        if (isCreator && draft.status === 'open' && !isExpired) {
+            closeDraftSection.style.display = 'block';
+        } else {
+            closeDraftSection.style.display = 'none';
+        }
+        
+        if (userResponse) {
+            draftActionSection.style.display = 'none';
+            userResponseStatus.style.display = 'block';
+            userResponseStatus.className = 'alert alert-info';
+            if (userResponse.type === 'approve') {
+                userResponseStatus.textContent = `Bạn đã thống nhất dự thảo này vào lúc ${userResponse.timestamp}.`;
+            } else {
+                userResponseStatus.textContent = `Bạn đã góp ý cho dự thảo này vào lúc ${userResponse.timestamp}.`;
+            }
+        } else if (isExpired || draft.status === 'approved' || draft.status === 'closed') {
+            draftActionSection.style.display = 'none';
+            userResponseStatus.style.display = 'block';
+            userResponseStatus.className = 'alert alert-warning';
+            if (isExpired) {
+                userResponseStatus.textContent = 'Đã hết thời hạn góp ý.';
+            } else if (draft.status === 'approved') {
+                userResponseStatus.textContent = 'Dự thảo đã được thống nhất.';
+            } else if (draft.status === 'closed') {
+                userResponseStatus.textContent = 'Góp ý dự thảo đã được đóng.';
+            }
+        } else {
+            draftActionSection.style.display = 'block';
+            userResponseStatus.style.display = 'none';
+            
+            // Reset checkboxes
+            const approveCheckbox = document.getElementById('approveCheckbox');
+            const commentCheckbox = document.getElementById('commentCheckbox');
+            const commentForm = document.getElementById('commentForm');
+            if (approveCheckbox) approveCheckbox.checked = false;
+            if (commentCheckbox) commentCheckbox.checked = false;
+            if (commentForm) commentForm.style.display = 'none';
+        }
+        
+        // Populate comments
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '';
+        
+        if (draft.comments.length === 0) {
+            commentsList.innerHTML = '<p class="text-muted">Chưa có góp ý nào.</p>';
+        } else {
+            draft.comments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'card mb-2 draft-comment-item';
+                commentDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title">${comment.userId}</h6>
+                                <p class="card-text">${comment.content}</p>
+                            </div>
+                            <small class="text-muted">${comment.timestamp}</small>
+                        </div>
+                    </div>
+                `;
+                commentsList.appendChild(commentDiv);
+            });
+        }
+        
+        // Show detail container
+        const draftReportListContainer = document.getElementById('draftReportListContainer');
+        const draftReportDetailContainer = document.getElementById('draftReportDetailContainer');
+        const createDraftContainer = document.getElementById('createDraftContainer');
+        
+        if (draftReportListContainer) draftReportListContainer.style.display = 'none';
+        if (draftReportDetailContainer) draftReportDetailContainer.style.display = 'block';
+        if (createDraftContainer) createDraftContainer.style.display = 'none';
+        
+        // Store current draft ID for actions
+        window.currentDraftId = draftId;
+    }, 100);
+};
 
 // Update module visibility based on user permissions
     function updateModuleVisibility() {
