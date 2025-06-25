@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HỆ THỐNG BIỂU QUYẾT - EVNCHP</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js (for history page) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Login Page Content (Default) -->
+        <div id="loginPage">
+            <div class="card card-custom w-100">
+                <div class="login-header">
+                    <h1>HỆ THỐNG BIỂU QUYẾT – EVNCHP</h1>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" value="admin" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" value="admin" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom btn-lg">Đăng nhập</button>
+                        </div>
+                    </form>
+                    <div id="loginError" class="text-danger mt-3 text-center" style="display: none;">Tên đăng nhập hoặc mật khẩu không đúng.</div>
+                </div>
+            </div>
+            <footer class="footer-custom">
+                TỔ CNTT – P4 - EVNCHP
+            </footer>
+        </div>
+
+        <!-- Main Dashboard Content (Hidden by default) -->
+        <div id="dashboardPage" style="display: none;">
+            <header class="main-header d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="#" data-module="dashboardHome">HỆ THỐNG BIỂU QUYẾT - EVNCHP</a>
+                <ul class="navbar-nav user-nav ms-auto"> 
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> <span id="loggedInUserDisplay">Admin</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutButton">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </header>
+
+            <nav class="module-navbar-custom">
+                <ul class="nav"> 
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#" data-module="dashboardHome">
+                            <i class="fas fa-home"></i> Trang chính
+                        </a>
+                    </li>                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="draftReport">
+                            <i class="fas fa-file-alt"></i> Dự thảo tờ trình
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="createVote">
+                            <i class="fas fa-plus-square"></i> Tạo phiếu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="voteList">
+                            <i class="fas fa-vote-yea"></i> Biểu quyết
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="endVote">
+                            <i class="fas fa-check-square"></i> Kết thúc BQ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="voteHistory">
+                            <i class="fas fa-history"></i> Lịch sử BQ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="documentCabinet">
+                            <i class="fas fa-folder-open"></i> Tủ tài liệu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-module="adminManagement">
+                            <i class="fas fa-users-cog"></i> Quản trị
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="main-content-wrapper">
+                <div id="moduleContent" class="container-fluid px-md-4">
+                    <!-- Nội dung của các module sẽ được tải vào đây -->
+                     <div class="module-container" id="dashboardHomeModule">
+                        <h2 class="module-title">Chào mừng đến Hệ thống Biểu quyết</h2>
+                        <p>Sử dụng menu phía trên để truy cập các chức năng.</p>
+                        <div class="row">
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100 py-2 card-custom dashboard-card" id="openVotesCard">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Phiếu đang mở</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="openVotesCount">0</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-poll fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                             <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2 card-custom dashboard-card" id="completedVotesCard">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Phiếu đã hoàn thành</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="completedVotesCount">0</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-info shadow h-100 py-2 card-custom dashboard-card" id="draftReportsCard">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Góp ý dự thảo tờ trình</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="draftReportsCount">0</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                    </div>
+
+                    <div class="module-container" id="draftReportModule" style="display: none;">
+                        <h2 class="module-title">Dự Thảo Tờ Trình</h2>
+                        
+                        <!-- Danh sách dự thảo tờ trình -->
+                        <div id="draftReportListContainer">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4>Danh sách dự thảo tờ trình</h4>
+                                <button class="btn btn-success btn-sm" id="createNewDraftButton"><i class="fas fa-plus"></i> Tạo dự thảo mới</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Tiêu đề</th>
+                                            <th scope="col">Ngày tạo</th>
+                                            <th scope="col">Thời hạn góp ý</th>
+                                            <th scope="col">Trạng thái</th>
+                                            <th scope="col">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="draftReportTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Chi tiết dự thảo -->
+                        <div id="draftReportDetailContainer" style="display: none;">
+                            <button class="btn btn-secondary mb-3" id="backToDraftListButton">
+                                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                            </button>
+                            
+                            <div class="card card-custom">
+                                <div class="card-header">
+                                    <h3 id="draftDetailTitle"></h3>
+                                    <small class="text-muted" id="draftDetailInfo"></small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h5>Nội dung dự thảo:</h5>
+                                        <div id="draftContent" class="border p-3 bg-light" style="white-space: pre-wrap;"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>Tài liệu đính kèm:</h5>
+                                        <ul id="draftAttachments"></ul>
+                                    </div>                                    <!-- Các lựa chọn hành động -->
+                                    <div class="mb-3 draft-action-section" id="draftActionSection">
+                                        <h5><i class="fas fa-hand-point-right text-primary"></i> Lựa chọn của bạn:</h5>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="approveCheckbox">
+                                            <label class="form-check-label fw-bold text-success" for="approveCheckbox">
+                                                <i class="fas fa-check-circle"></i> Thống nhất dự thảo
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="commentCheckbox">
+                                            <label class="form-check-label fw-bold text-warning" for="commentCheckbox">
+                                                <i class="fas fa-comment-dots"></i> Góp ý dự thảo
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Form góp ý -->
+                                        <div id="commentForm" style="display: none;">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6>Nội dung góp ý của bạn:</h6>
+                                                    <form id="submitCommentForm">
+                                                        <div class="mb-3">
+                                                            <textarea class="form-control" id="commentContent" rows="4" placeholder="Nhập nội dung góp ý của bạn..." required></textarea>
+                                                        </div>
+                                                        <div class="d-flex gap-2">
+                                                            <button type="submit" class="btn btn-primary-custom">
+                                                                <i class="fas fa-paper-plane"></i> Gửi góp ý
+                                                            </button>
+                                                            <button type="button" class="btn btn-secondary" id="cancelCommentButton">
+                                                                <i class="fas fa-times"></i> Hủy
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Nút đóng góp ý -->
+                                        <div class="mt-3" id="closeDraftSection" style="display: none;">
+                                            <button class="btn btn-danger" id="closeDraftButton">
+                                                <i class="fas fa-lock"></i> Đóng góp ý dự thảo
+                                            </button>
+                                            <small class="text-muted d-block mt-1">
+                                                <i class="fas fa-info-circle"></i> Chỉ người tạo dự thảo mới có thể đóng góp ý trước thời hạn
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Danh sách góp ý -->
+                                    <div class="mt-4">
+                                        <h5>Góp ý từ các thành viên:</h5>
+                                        <div id="commentsList"></div>
+                                    </div>
+
+                                    <!-- Trạng thái phản hồi của user -->
+                                    <div id="userResponseStatus" class="alert" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form tạo dự thảo mới -->
+                        <div id="createDraftContainer" style="display: none;">
+                            <button class="btn btn-secondary mb-3" id="backFromCreateDraftButton">
+                                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                            </button>
+                            
+                            <div class="card card-custom">
+                                <div class="card-header">
+                                    <h3>Tạo Dự Thảo Tờ Trình Mới</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="createDraftForm">
+                                        <div class="mb-3">
+                                            <label for="draftTitle" class="form-label">Tiêu đề dự thảo <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="draftTitle" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="draftContentInput" class="form-label">Nội dung dự thảo tờ trình <span class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="draftContentInput" rows="8" required placeholder="Nhập nội dung dự thảo tờ trình..."></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="draftAttachmentsInput" class="form-label">Đính kèm tài liệu (Cho phép chọn nhiều file)</label>
+                                            <input type="file" class="form-control" id="draftAttachmentsInput" multiple>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Thời gian góp ý:</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="commentPeriod" id="defaultPeriod" value="5" checked>
+                                                <label class="form-check-label" for="defaultPeriod">
+                                                    5 ngày làm việc (mặc định)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="commentPeriod" id="customPeriod" value="custom">
+                                                <label class="form-check-label" for="customPeriod">
+                                                    Tùy chỉnh:
+                                                </label>
+                                                <input type="number" class="form-control mt-1" id="customPeriodDays" min="1" max="30" placeholder="Số ngày" style="display: none;">
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary-custom">Tạo dự thảo</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-container" id="createVoteModule" style="display: none;">
+                        <h2 class="module-title">Tạo Phiếu Biểu Quyết Mới</h2>
+                        <form id="createVoteForm">
+                            <div class="row mb-3">
+                                <label for="voteRefNumberInput" class="col-sm-2 col-form-label">Số phiếu</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="voteRefNumberInput" placeholder="VD: 01">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" readonly class="form-control-plaintext" id="voteRefNumberSuffix">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="voteTitle" class="form-label">Tiêu đề biểu quyết <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="voteTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="voteSummary" class="form-label">Nội dung biểu quyết <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="voteSummary" rows="5" required placeholder="Nhập nội dung biểu quyết ở đây..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="voteAttachments" class="form-label">Đính kèm tài liệu (Cho phép chọn nhiều file)</label>
+                                <input type="file" class="form-control" id="voteAttachments" multiple>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Lựa chọn người góp ý:</label>
+                                <div class="assignee-group">
+                                    <legend>Cá nhân</legend>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="all" id="assigneeAllUsers">
+                                        <label class="form-check-label" for="assigneeAllUsers">Tất cả Người dùng (trừ Admin)</label>
+                                    </div>
+                                    <hr>
+                                    <div id="individualUserCheckboxes">
+                                        {/* Populated by JS */}
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom">Tạo biểu quyết</button>
+                        </form>
+                    </div>
+
+                    <div class="module-container" id="voteListModule" style="display: none;">
+                        <h2 class="module-title">Danh Sách Phiếu Biểu Quyết Đang Mở</h2>
+                        <div class="list-group">
+                            {/* Populated by JS */}
+                        </div>
+                    </div>
+                    
+                    <div class="module-container" id="voteDetailModule" style="display: none;">
+                        <h2 class="module-title" id="detailVoteTitle">Chi Tiết Phiếu Biểu Quyết</h2>
+                        <input type="hidden" id="currentVoteId"> 
+                        <div class="card card-custom">
+                            <div class="card-body">
+                                <h5 class="card-title">Tiêu đề: <span id="voteDetailTitleText"></span></h5>
+                                <p class="card-text"><strong>Nội dung:</strong> <span id="voteDetailSummaryText"></span></p>
+                                <p class="card-text"><strong>File đính kèm:</strong>
+                                    <ul id="voteDetailAttachments"></ul>
+                                </p>
+                                <hr>
+                                <div id="voteActionSection" style="display:none;"> 
+                                    <h5>Lựa chọn của bạn:</h5>
+                                    <form id="submitVoteForm">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="userVoteOption" id="userOptionAgree" value="agree" checked>
+                                            <label class="form-check-label" for="userOptionAgree">Đồng ý</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="userVoteOption" id="userOptionDisagree" value="disagree">
+                                            <label class="form-check-label" for="userOptionDisagree">Không đồng ý</label>
+                                            <textarea class="form-control mt-1" id="userDisagreeReason" placeholder="Lý do không đồng ý (bắt buộc nếu chọn)" style="display:none;"></textarea>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="userVoteOption" id="userOptionOther" value="other">
+                                            <label class="form-check-label" for="userOptionOther">Ý kiến khác</label>
+                                            <textarea class="form-control mt-1" id="userOtherOpinion" placeholder="Nội dung ý kiến khác (bắt buộc nếu chọn)" style="display:none;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary-custom">Gửi phiếu biểu quyết</button>
+                                    </form>
+                                </div>
+                                <div id="voteStatusMessage" class="alert" style="display:none;">
+                                </div>
+                                <button class="btn btn-info mt-3" id="exportVoteResultsButton" style="display: none;">
+                                    <i class="fas fa-file-export"></i> Xuất kết quả biểu quyết
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary mt-3" id="backToVoteList">Quay lại danh sách</button>
+                    </div>
+
+                    <div class="module-container" id="endVoteModule" style="display: none;">
+                        <div id="endVoteListContainer">
+                            <h2 class="module-title">Danh Sách Phiếu Cần Kết Thúc</h2>
+                            <p>Chọn một phiếu để xem chi tiết và thực hiện kết thúc.</p>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Tiêu đề phiếu</th>
+                                            <th scope="col">Ngày tạo</th>
+                                            <th scope="col">Số người đã BQ / Tổng số</th>
+                                            <th scope="col">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="endVoteTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="endVoteDetailContainer" style="display: none;">
+                            <h2 class="module-title">Chi Tiết Phiếu: <span id="endVoteDetailTitle"></span></h2>
+                             <p><strong>Số phiếu:</strong> <span id="endVoteDetailRefNum"></span></p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-check-circle text-success"></i> Đã biểu quyết</h5>
+                                    <ul class="list-group mb-3" id="usersVotedList"></ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-times-circle text-danger"></i> Chưa biểu quyết</h5>
+                                    <ul class="list-group mb-3" id="usersNotVotedList"></ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-danger" id="executeEndVoteButton" disabled>
+                                    <i class="fas fa-flag-checkered"></i> Kết thúc Biểu quyết này
+                                </button>
+                                <button class="btn btn-secondary" id="backToEndVoteListButton">
+                                    <i class="fas fa-arrow-left"></i> Quay lại Danh sách
+                                </button>
+                            </div>
+                             <p id="endVoteStatusMessage" class="mt-2 text-muted"></p>
+                        </div>
+                    </div>
+
+
+                    <div class="module-container" id="voteHistoryModule" style="display: none;">
+                        <h2 class="module-title">Lịch Sử Biểu Quyết</h2>
+                        <div class="accordion" id="historyAccordion"></div>
+                    </div>
+
+                    <div class="module-container" id="documentCabinetModule" style="display: none;">
+                        <h2 class="module-title">Tủ Tài Liệu</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Danh sách tài liệu</h4>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal"><i class="fas fa-upload"></i> Tải lên tài liệu mới</button>
+                        </div>
+                        <div class="accordion" id="documentAccordion"></div>
+                    </div>
+
+                    <div class="module-container" id="adminManagementModule" style="display: none;">
+                        <h2 class="module-title">Quản Trị Hệ Thống</h2>
+                        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="user-management-tab" data-bs-toggle="tab" data-bs-target="#userManagementContent" type="button" role="tab" aria-controls="userManagementContent" aria-selected="true">Quản lý người dùng</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="vote-management-tab" data-bs-toggle="tab" data-bs-target="#voteManagementContent" type="button" role="tab" aria-controls="voteManagementContent" aria-selected="false">Quản lý biểu quyết</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="permission-management-tab" data-bs-toggle="tab" data-bs-target="#permissionManagementContent" type="button" role="tab" aria-controls="permissionManagementContent" aria-selected="false">Quản trị phân quyền</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-3" id="adminTabsContent">
+                            <div class="tab-pane fade show active" id="userManagementContent" role="tabpanel" aria-labelledby="user-management-tab">
+                                <h4>Danh sách người dùng</h4>
+                                <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fas fa-user-plus"></i> Thêm người dùng mới</button>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead><tr><th>ID</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Hành động</th></tr></thead>
+                                        <tbody id="userListTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="voteManagementContent" role="tabpanel" aria-labelledby="vote-management-tab">
+                                <h4>Quản lý phiếu biểu quyết</h4>
+                                <div class="table-responsive">
+                                     <table class="table table-striped">
+                                        <thead><tr><th>ID</th><th>Tiêu đề</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+                                        <tbody id="adminVoteListTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="permissionManagementContent" role="tabpanel" aria-labelledby="permission-management-tab">
+                                <h4>Phân quyền truy cập module</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Dự thảo tờ trình</th>
+                                                <th>Tạo phiếu</th>
+                                                <th>Biểu quyết</th>
+                                                <th>Kết thúc BQ</th>
+                                                <th>Lịch sử BQ</th>
+                                                <th>Tủ tài liệu</th>
+                                                <th>Quản trị</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="permissionsTableBody"></tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary-custom mt-3" id="savePermissionsButton">Lưu thay đổi phân quyền</button>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+            <footer class="footer-custom">TỔ CNTT – P4 - EVNCHP</footer>
+        </div> 
+    </div> 
+
+    <!-- Modals -->
+    <div class="modal fade" id="historyDetailModal" tabindex="-1" aria-labelledby="historyDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="historyDetailModalLabel">Chi tiết Lịch sử Biểu quyết</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="historyVoteTitle"></h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <h5>Biểu đồ tỷ lệ biểu quyết</h5>
+                            <div style="height: 300px;"><canvas id="voteChart"></canvas></div>
+                            <p id="voteConclusion" class="mt-3 fw-bold"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Danh sách người biểu quyết và ý kiến</h5>
+                            <ul class="list-group list-group-flush" id="voterList" style="max-height: 250px; overflow-y: auto;"></ul>
+                             <div id="otherOpinionsSummaryContainer" class="mt-3" style="display: none;">
+                                <button class="btn btn-sm btn-gemini mb-2" id="summarizeOtherOpinionsButton">
+                                   <i class="fas fa-magic"></i> ✨ Tóm tắt các ý kiến khác
+                                </button>
+                                <div id="otherOpinionsLoadingSpinner" class="loading-spinner"></div>
+                                <div id="geminiOtherOpinionsSummary" style="display:none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Tài liệu đính kèm</h5>
+                    <ul id="historyAttachments"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="addUserModalLabel">Thêm Người Dùng Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label for="newUserName" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="newUserName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newUserPassword" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="newUserPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newUserRole" class="form-label">Vai trò</label>
+                            <select class="form-select" id="newUserRole">
+                                <option value="User">User</option> 
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">Thêm người dùng</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="uploadDocumentModal" tabindex="-1" aria-labelledby="uploadDocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="uploadDocumentModalLabel">Tải Lên Tài Liệu Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadDocumentForm">
+                        <div class="mb-3">
+                            <label for="documentFile" class="form-label">Chọn file (PDF, DOCX, ...)</label>
+                            <input type="file" class="form-control" id="documentFile" required multiple>
+                        </div>
+                         <div class="mb-3">
+                            <label for="documentYear" class="form-label">Năm (Thư mục lưu trữ)</label>
+                            <select class="form-select" id="documentYear">
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                 <option value="2023">2023</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">Tải lên</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="customAlertModal" tabindex="-1" aria-labelledby="customAlertModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header modal-header-custom">
+            <h5 class="modal-title" id="customAlertModalLabel">Thông báo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="customAlertModalBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary-custom" data-bs-dismiss="modal" id="customAlertModalOkButton">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Display Modal -->
+    <div class="modal fade" id="pdfDisplayModal" tabindex="-1" aria-labelledby="pdfDisplayModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header modal-header-custom">
+            <h5 class="modal-title" id="pdfDisplayModalLabel">Xem Tài Liệu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="pdfDisplayModalBody">
+            <!-- PDF content will be injected here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
