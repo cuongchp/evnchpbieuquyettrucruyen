@@ -1,0 +1,33 @@
+{
+  "name": "evnchp-voting-system",
+  "version": "1.0.0",
+  "description": "Hệ thống biểu quyết điện tử EVNCHP - Electronic Voting System",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o",
+    "dev": "npx live-server --port=8080 --open=/index.html"
+  },
+  "keywords": [
+    "voting",
+    "evnchp",
+    "election",
+    "javascript",
+    "html",
+    "css",
+    "responsive"
+  ],
+  "author": "EVNCHP Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cuongchp/evnchpbieuquyettrucruyen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cuongchp/evnchpbieuquyettrucruyen/issues"
+  },
+  "homepage": "https://github.com/cuongchp/evnchpbieuquyettrucruyen#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}
