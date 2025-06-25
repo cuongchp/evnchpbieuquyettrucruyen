@@ -71,8 +71,8 @@ Hệ thống Biểu quyết điện tử cho Tổng Công ty Thủy điện và 
 ### Chạy dự án
 1. Clone repository:
 ```bash
-git clone https://github.com/[your-username]/htbieuquyet-evnchp.git
-cd htbieuquyet-evnchp
+git clone https://github.com/cuongchp/evnchpbieuquyettrucruyen.git
+cd evnchpbieuquyettrucruyen
 ```
 
 2. Mở file `index.html` bằng web browser hoặc sử dụng live server:
